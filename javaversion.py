@@ -29,6 +29,23 @@ class JavaVersion(object):
         return JavaVersion(familyNumber, updateNumber)
 
     def __init__(self, familyNumber, updateNumber):
-        self.familyNumber = familyNumber
-        self.updateNumber = updateNumber
+        self._familyNumber = familyNumber
+        self._updateNumber = updateNumber
+
+    @property
+    def familyNumber(self):
+        return self._familyNumber
+
+    @property
+    def updateNumber(self):
+        return self._updateNumber
+
+    def __eq__(self, other):
+        return (self.familyNumber == other.familyNumber and
+                self.updateNumber == other.updateNumber)
+
+    def __lt__(self, other):
+        if self.familyNumber == other.familyNumber:
+            return self.updateNumber < other.updateNumber
+        return self.familyNumber < other.familyNumber
 
