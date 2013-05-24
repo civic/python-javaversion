@@ -65,7 +65,25 @@ class JavaVersionTest(unittest.TestCase):
         self.assertFalse(u51 > u51)
         self.assertTrue(u51 == u51)
 
+    def test_LimitedUpdateは20の倍数で増える(self):
+        self.assertEquals(JavaVersion.parse("JDK7u40").nextLimitedUpdate().updateNumber, 60)
+        self.assertEquals(JavaVersion.parse("JDK7u45").nextLimitedUpdate().updateNumber, 60)
+        self.assertEquals(JavaVersion.parse("JDK7u50").nextLimitedUpdate().updateNumber, 60)
 
+    def test_CriticalPatchUpdateは5の倍数で増える(self):
+        self.assertEquals(JavaVersion.parse("JDK7u40").nextCriticalPatchUpdate().updateNumber, 45)
+        self.assertEquals(JavaVersion.parse("JDK7u51").nextCriticalPatchUpdate().updateNumber, 55)
+
+    def test_CriticalPatchUpdateは5の倍数で増えるけど偶数の場合は1増やす(self):
+        self.assertEquals(JavaVersion.parse("JDK7u45").nextCriticalPatchUpdate().updateNumber, 51)
+        self.assertEquals(JavaVersion.parse("JDK7u46").nextCriticalPatchUpdate().updateNumber, 51)
+        self.assertEquals(JavaVersion.parse("JDK7u55").nextCriticalPatchUpdate().updateNumber, 61)
+
+    def test_nextSecurityAlertはLimitedUpdateを避けて39から41になる(self):
+        self.assertEquals(JavaVersion.parse("JDK7u39").nextSecurityAlert().updateNumber, 41)
+
+    def test_nextSecurityAlertはCriticalPatchUpdateを避けて44から46になる(self):
+        self.assertEquals(JavaVersion.parse("JDK7u44").nextSecurityAlert().updateNumber, 46)
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromName("javaversion_test")
