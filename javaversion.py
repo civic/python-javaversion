@@ -1,7 +1,6 @@
 from parser import ParserError
 import re
 
-
 class JavaVersion(object):
     @staticmethod
     def isValid(version_str):
@@ -10,7 +9,6 @@ class JavaVersion(object):
             return True
         except ParserError as e:
             return False
-
 
     @staticmethod
     def parse(version_str):
@@ -29,6 +27,39 @@ class JavaVersion(object):
         return JavaVersion(familyNumber, updateNumber)
 
     def __init__(self, familyNumber, updateNumber):
-        self.familyNumber = familyNumber
-        self.updateNumber = updateNumber
+        self._familyNumber = familyNumber
+        self._updateNumber = updateNumber
 
+    @property
+    def familyNumber(self):
+        return self._familyNumber
+
+    @property
+    def updateNumber(self):
+        return self._updateNumber
+
+    def __eq__(self, other):
+        return (self.familyNumber == other.familyNumber and
+                self.updateNumber == other.updateNumber)
+
+    def __lt__(self, other):
+        if self.familyNumber == other.familyNumber:
+            return self.updateNumber < other.updateNumber
+        return self.familyNumber < other.familyNumber
+
+
+    def nextLimitedUpdate(self):
+        nextUpdateNumber = self.updateNumber + 20 - (self.updateNumber % 20)
+        return JavaVersion(self.familyNumber, nextUpdateNumber)
+
+    def nextCriticalPatchUpdate(self):
+        nextUpdateNumber = self.updateNumber + 5 - (self.updateNumber % 5)
+        if nextUpdateNumber % 2 == 0:
+            nextUpdateNumber += 1
+        return JavaVersion(self.familyNumber, nextUpdateNumber)
+
+    def nextSecurityAlert(self):
+        nextUpdateNumber = self.updateNumber + 1
+        if nextUpdateNumber % 5 == 0:
+            nextUpdateNumber += 1
+        return JavaVersion(self.familyNumber, nextUpdateNumber)
